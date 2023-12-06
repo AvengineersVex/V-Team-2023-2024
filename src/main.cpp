@@ -205,13 +205,25 @@ void autonomous() {}
  */
 void opcontrol() {
     // Chassis Controller - lets us drive the robot around with open- or closed-loop control
+	// manual motor declaration
+	// Motor motorLeftBack = Motor(1);
+	// Motor motorLeft = Motor(2);
+	// Motor motorRightBack = Motor(-3);
+	// Motor motorRight = Motor(-4);
+
+	// motorLeftBack.setBrakeMode(AbstractMotor::brakeMode::brake);
+	// motorLeft.setBrakeMode(AbstractMotor::brakeMode::brake);
+	// motorRightBack.setBrakeMode(AbstractMotor::brakeMode::brake);
+	// motorRight.setBrakeMode(AbstractMotor::brakeMode::brake);
+
     std::shared_ptr<ChassisController> drive =
         ChassisControllerBuilder()
-            .withMotors({1,2}, {-3,-4})
+            .withMotors({1,2},{-3,4})
             // Green gearset, 4 in wheel diam, 11.5 in wheel track
             .withDimensions(AbstractMotor::gearset::green, {{4_in, 13.5_in}, imev5GreenTPR})
             .build();
 	
+	drive->getModel()->setBrakeMode(AbstractMotor::brakeMode::brake);
 
     // Joystick to read analog values for tank or arcade control
     // Master controller by default
@@ -224,7 +236,7 @@ void opcontrol() {
     while (true) {
         // Arcade drive with the left stick
         drive->getModel()->arcade(controller.getAnalog(ControllerAnalog::leftY),
-                                  controller.getAnalog(ControllerAnalog::leftX));
+                                  controller.getAnalog(ControllerAnalog::rightX));
 
         // Run the test autonomous routine if we press the button
         if (runAutoButton.changedToPressed()) {
