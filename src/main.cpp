@@ -1,20 +1,63 @@
 #include "main.h"
 
-/**
- * A callback function for LLEMU's center button.
- *
- * When this callback is fired, it will toggle line 2 of the LCD text between
- * "I was pressed!" and nothing.
- */
-void on_center_button() 
+lv_obj_t * roller1;
+
+lv_obj_t * redLeftButton;
+lv_obj_t * redLeftButtonLabel;
+lv_obj_t * redRightButton;
+lv_obj_t * redRightButtonLabel;
+lv_obj_t * blueLeftButton;
+lv_obj_t * blueLeftButtonLabel;
+lv_obj_t * blueRightButton;
+lv_obj_t * blueRightButtonLabel;
+
+
+lv_obj_t * myLabel;
+
+lv_style_t redButtonStyleREL; //relesed style
+lv_style_t redButtonStylePR; //pressed style
+lv_style_t blueButtonStyleREL; //relesed style
+lv_style_t blueButtonStylePR; //pressed style
+lv_style_t screenStyle;
+
+static lv_res_t btn_click_action_red(lv_obj_t * btn)
 {
-	static bool pressed = false;
-	pressed = !pressed;
-	if (pressed) {
-		pros::lcd::set_text(2, "I was pressed!");
-	} else {
-		pros::lcd::clear_line(2);
-	}
+    uint8_t id = lv_obj_get_free_num(btn); //id usefull when there are multiple buttons
+
+    if(id == 0)
+    {
+        char buffer[100];
+        sprintf(buffer, "clicked @ %ims from startup ee oo text to wrap over ooga bogoa", pros::millis());
+        lv_label_set_text(myLabel, buffer);
+    }
+
+    // background red
+    lv_style_copy(&screenStyle, &lv_style_plain);
+    screenStyle.body.main_color = LV_COLOR_MAKE(96, 95 , 94);
+    screenStyle.body.grad_color = LV_COLOR_MAKE(153, 13, 53);
+    lv_obj_set_style(lv_scr_act(), &screenStyle);
+
+    return LV_RES_OK;
+}
+
+static lv_res_t btn_click_action_blue(lv_obj_t * btn)
+{
+    uint8_t id = lv_obj_get_free_num(btn); //id usefull when there are multiple buttons
+
+    if(id == 0)
+    {
+        char buffer[100];
+        sprintf(buffer, "clicked @ %ims from startup ee oo text to wrap over ooga bogoa", pros::millis());
+        lv_label_set_text(myLabel, buffer);
+    }
+
+    // background blue
+    lv_style_copy(&screenStyle, &lv_style_plain);
+    screenStyle.body.main_color = LV_COLOR_MAKE(96, 95 , 94);
+    screenStyle.body.grad_color = LV_COLOR_MAKE(39, 93, 173);
+    lv_obj_set_style(lv_scr_act(), &screenStyle);
+
+    return LV_RES_OK;
 }
 
 /**
@@ -23,13 +66,98 @@ void on_center_button()
  * All other competition modes are blocked by initialize; it is recommended
  * to keep execution time for this mode under a few seconds.
  */
-void initialize() 
+void initialize()
 {
-	pros::lcd::initialize();
-	pros::lcd::set_text(1, "Hello PROS User!");
+    lv_style_copy(&redButtonStyleREL, &lv_style_plain);
+    redButtonStyleREL.body.main_color = LV_COLOR_MAKE(219, 50, 77);
+    redButtonStyleREL.body.grad_color = LV_COLOR_MAKE(219, 50, 77);
+    redButtonStyleREL.body.radius = 0;
+    redButtonStyleREL.text.color = LV_COLOR_MAKE(255, 255, 255);
 
-	pros::lcd::register_btn1_cb(on_center_button);
+    lv_style_copy(&redButtonStylePR, &lv_style_plain);
+    redButtonStylePR.body.main_color = LV_COLOR_MAKE(166, 38, 57);
+    redButtonStylePR.body.grad_color = LV_COLOR_MAKE(219, 50, 77);
+    redButtonStylePR.body.radius = 0;
+    redButtonStylePR.text.color = LV_COLOR_MAKE(255, 255, 255);
+
+    lv_style_copy(&blueButtonStyleREL, &lv_style_plain);
+    blueButtonStyleREL.body.main_color = LV_COLOR_MAKE(40, 175, 176);
+    blueButtonStyleREL.body.grad_color = LV_COLOR_MAKE(40, 175, 176);
+    blueButtonStyleREL.body.radius = 0;
+    blueButtonStyleREL.text.color = LV_COLOR_MAKE(255, 255, 255);
+
+    lv_style_copy(&blueButtonStylePR, &lv_style_plain);
+    blueButtonStylePR.body.main_color = LV_COLOR_MAKE(25, 100, 126);
+    blueButtonStylePR.body.grad_color = LV_COLOR_MAKE(40, 175, 176);
+    blueButtonStylePR.body.radius = 0;
+    blueButtonStylePR.text.color = LV_COLOR_MAKE(255, 255, 255);
+
+
+    // left red button
+    redLeftButton = lv_btn_create(lv_scr_act(), NULL); //create button, lv_scr_act() is deafult screen object
+    lv_obj_set_free_num(redLeftButton, 0); //set button is to 0
+    lv_btn_set_action(redLeftButton, LV_BTN_ACTION_CLICK, btn_click_action_red); //set function to be called on button click
+    lv_btn_set_style(redLeftButton, LV_BTN_STYLE_REL, &redButtonStyleREL); //set the relesed style
+    lv_btn_set_style(redLeftButton, LV_BTN_STYLE_PR, &redButtonStylePR); //set the pressed style
+    lv_obj_set_size(redLeftButton, 200, 50); //set the button size
+    lv_obj_align(redLeftButton, NULL, LV_ALIGN_IN_BOTTOM_LEFT, 10, -10); //set the position to top mid
+
+    redLeftButtonLabel = lv_label_create(redLeftButton, NULL); //create label and puts it inside of the button
+    lv_label_set_text(redLeftButtonLabel, "Red left"); //sets label text
+
+
+    // red right button
+
+    redRightButton = lv_btn_create(lv_scr_act(), NULL); //create button, lv_scr_act() is deafult screen object
+    lv_obj_set_free_num(redRightButton, 0); //set button is to 0
+    lv_btn_set_action(redRightButton, LV_BTN_ACTION_CLICK, btn_click_action_red); //set function to be called on button click
+    lv_btn_set_style(redRightButton, LV_BTN_STYLE_REL, &redButtonStyleREL); //set the relesed style
+    lv_btn_set_style(redRightButton, LV_BTN_STYLE_PR, &redButtonStylePR); //set the pressed style
+    lv_obj_set_size(redRightButton, 200, 50); //set the button size
+    lv_obj_align(redRightButton, NULL, LV_ALIGN_IN_BOTTOM_RIGHT, -10, -10); //set the position to top mid
+
+    redRightButtonLabel = lv_label_create(redRightButton, NULL); //create label and puts it inside of the button
+    lv_label_set_text(redRightButtonLabel, "Red right"); //sets label text
+
+    // left blue button
+    blueLeftButton = lv_btn_create(lv_scr_act(), NULL); //create button, lv_scr_act() is deafult screen object
+    lv_obj_set_free_num(blueLeftButton, 0); //set button is to 0
+    lv_btn_set_action(blueLeftButton, LV_BTN_ACTION_CLICK, btn_click_action_blue); //set function to be called on button click
+    lv_btn_set_style(blueLeftButton, LV_BTN_STYLE_REL, &blueButtonStyleREL); //set the relesed style
+    lv_btn_set_style(blueLeftButton, LV_BTN_STYLE_PR, &blueButtonStylePR); //set the pressed style
+    lv_obj_set_size(blueLeftButton, 200, 50); //set the button size
+    lv_obj_align(blueLeftButton, NULL, LV_ALIGN_IN_TOP_LEFT, 10, 10); //set the position to top mid
+
+    blueLeftButtonLabel = lv_label_create(blueLeftButton, NULL); //create label and puts it inside of the button
+    lv_label_set_text(blueLeftButtonLabel, "Blue left"); //sets label text
+
+
+    // blue right button
+
+    blueRightButton = lv_btn_create(lv_scr_act(), NULL); //create button, lv_scr_act() is deafult screen object
+    lv_obj_set_free_num(blueRightButton, 0); //set button is to 0
+    lv_btn_set_action(blueRightButton, LV_BTN_ACTION_CLICK, btn_click_action_blue); //set function to be called on button click
+    lv_btn_set_style(blueRightButton, LV_BTN_STYLE_REL, &blueButtonStyleREL); //set the relesed style
+    lv_btn_set_style(blueRightButton, LV_BTN_STYLE_PR, &blueButtonStylePR); //set the pressed style
+    lv_obj_set_size(blueRightButton, 200, 50); //set the button size
+    lv_obj_align(blueRightButton, NULL, LV_ALIGN_IN_TOP_RIGHT, -10, 10); //set the position to top mid
+
+    blueRightButtonLabel = lv_label_create(blueRightButton, NULL); //create label and puts it inside of the button
+    lv_label_set_text(blueRightButtonLabel, "Blue right"); //sets label text
+
+
+    myLabel = lv_label_create(lv_scr_act(), NULL); //create label and puts it on the screen
+    lv_label_set_text(myLabel, "Buttons"); //sets label text
+    lv_obj_align(myLabel, NULL, LV_ALIGN_IN_LEFT_MID, 10, 0); //set the position to center
+
+    // background
+    lv_style_copy(&screenStyle, &lv_style_plain);
+    screenStyle.body.main_color = LV_COLOR_MAKE(96, 95 , 94);
+    screenStyle.body.grad_color = LV_COLOR_MAKE(96, 95, 94);
+    lv_obj_set_style(lv_scr_act(), &screenStyle);
+
 }
+
 
 /**
  * Runs while the robot is in the disabled state of Field Management System or
@@ -75,31 +203,50 @@ void autonomous() {}
  * operator control task will be stopped. Re-enabling the robot will restart the
  * task, not resume it from where it left off.
  */
-void opcontrol() 
-{
-	pros::Controller master(pros::E_CONTROLLER_MASTER);
-	pros::Motor left_mtr(1);
-	pros::Motor right_mtr(2);
-	pros::Motor leftB_mtr(3); // Assuming motor connected to port 3
+void opcontrol() {
+    // Chassis Controller - lets us drive the robot around with open- or closed-loop control
+    std::shared_ptr<ChassisController> drive =
+        ChassisControllerBuilder()
+            .withMotors({1,2}, {-3,-4})
+            // Green gearset, 4 in wheel diam, 11.5 in wheel track
+            .withDimensions(AbstractMotor::gearset::green, {{4_in, 13.5_in}, imev5GreenTPR})
+            .build();
+	
 
-	while (true) 
-	{
-		pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
-		                 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
-		                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);
+    // Joystick to read analog values for tank or arcade control
+    // Master controller by default
+    Controller controller;
 
-		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_X))
-		{
-			left_mtr = 100;
-			right_mtr = 100;
-		}
-		if(!master.get_digital(pros::E_CONTROLLER_DIGITAL_X))
-		{
-			left_mtr = 0;
-			right_mtr = 0;
-		}
 
-		pros::delay(20);
-	}
+    // Button to run our sample autonomous routine
+    ControllerButton runAutoButton(ControllerDigital::X);
+
+    while (true) {
+        // Arcade drive with the left stick
+        drive->getModel()->arcade(controller.getAnalog(ControllerAnalog::leftY),
+                                  controller.getAnalog(ControllerAnalog::leftX));
+
+        // Run the test autonomous routine if we press the button
+        if (runAutoButton.changedToPressed()) {
+            // Drive the robot in a square pattern using closed-loop control
+            for (int i = 0; i < 4; i++) {
+                drive->moveDistance(12_in); // Drive forward 12 inches
+                drive->turnAngle(90_deg);   // Turn in place 90 degrees
+            }
+        }
+        // Wait and give up the time we don't need to other tasks.
+        // Additionally, joystick values, motor telemetry, etc. all updates every 10 ms.
+        pros::delay(10);
+    }
 }
 
+/*
+ * vision::signature SIG_1 (1, 11897, 12435, 12166, -2389, -1719, -2054, 5.100, 0);
+vision::signature SIG_2 (2, -3619, -2679, -3148, 5957, 7813, 6886, 3.000, 0);
+vision::signature SIG_3 (3, -5479, -4769, -5124, -7207, -6553, -6880, 3.000, 0);
+vision::signature SIG_4 (4, 0, 0, 0, 0, 0, 0, 3.000, 0);
+vision::signature SIG_5 (5, 0, 0, 0, 0, 0, 0, 3.000, 0);
+vision::signature SIG_6 (6, 0, 0, 0, 0, 0, 0, 3.000, 0);
+vision::signature SIG_7 (7, 0, 0, 0, 0, 0, 0, 3.000, 0);
+vex::vision vision1 ( vex::PORT1, 45, SIG_1, SIG_2, SIG_3, SIG_4, SIG_5, SIG_6, SIG_7 );
+ */
