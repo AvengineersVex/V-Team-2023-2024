@@ -20,6 +20,8 @@ lv_style_t blueButtonStyleREL; //relesed style
 lv_style_t blueButtonStylePR; //pressed style
 lv_style_t screenStyle;
 
+int auton_location = 0;
+
 static lv_res_t btn_click_action_red(lv_obj_t * btn)
 {
     uint8_t id = lv_obj_get_free_num(btn); //id usefull when there are multiple buttons
@@ -109,7 +111,7 @@ void initialize()
     // red right button
 
     redRightButton = lv_btn_create(lv_scr_act(), NULL); //create button, lv_scr_act() is deafult screen object
-    lv_obj_set_free_num(redRightButton, 0); //set button is to 0
+    lv_obj_set_free_num(redRightButton, 1); //set button is to 0
     lv_btn_set_action(redRightButton, LV_BTN_ACTION_CLICK, btn_click_action_red); //set function to be called on button click
     lv_btn_set_style(redRightButton, LV_BTN_STYLE_REL, &redButtonStyleREL); //set the relesed style
     lv_btn_set_style(redRightButton, LV_BTN_STYLE_PR, &redButtonStylePR); //set the pressed style
@@ -121,7 +123,7 @@ void initialize()
 
     // left blue button
     blueLeftButton = lv_btn_create(lv_scr_act(), NULL); //create button, lv_scr_act() is deafult screen object
-    lv_obj_set_free_num(blueLeftButton, 0); //set button is to 0
+    lv_obj_set_free_num(blueLeftButton, 2); //set button is to 0
     lv_btn_set_action(blueLeftButton, LV_BTN_ACTION_CLICK, btn_click_action_blue); //set function to be called on button click
     lv_btn_set_style(blueLeftButton, LV_BTN_STYLE_REL, &blueButtonStyleREL); //set the relesed style
     lv_btn_set_style(blueLeftButton, LV_BTN_STYLE_PR, &blueButtonStylePR); //set the pressed style
@@ -135,7 +137,7 @@ void initialize()
     // blue right button
 
     blueRightButton = lv_btn_create(lv_scr_act(), NULL); //create button, lv_scr_act() is deafult screen object
-    lv_obj_set_free_num(blueRightButton, 0); //set button is to 0
+    lv_obj_set_free_num(blueRightButton, 3); //set button is to 0
     lv_btn_set_action(blueRightButton, LV_BTN_ACTION_CLICK, btn_click_action_blue); //set function to be called on button click
     lv_btn_set_style(blueRightButton, LV_BTN_STYLE_REL, &blueButtonStyleREL); //set the relesed style
     lv_btn_set_style(blueRightButton, LV_BTN_STYLE_PR, &blueButtonStylePR); //set the pressed style
@@ -218,34 +220,62 @@ void opcontrol() {
 
     std::shared_ptr<ChassisController> drive =
         ChassisControllerBuilder()
-            .withMotors({1,2},{-3,4})
+            .withMotors({1,2},{-3,-4})
             // Green gearset, 4 in wheel diam, 11.5 in wheel track
-            .withDimensions(AbstractMotor::gearset::green, {{4_in, 13.5_in}, imev5GreenTPR})
+            .withDimensions(AbstractMotor::gearset::green, {{4_in, 14.5_in}, imev5GreenTPR})
             .build();
 	
 	drive->getModel()->setBrakeMode(AbstractMotor::brakeMode::brake);
 
     // Joystick to read analog values for tank or arcade control
     // Master controller by default
-    Controller controller;
+    // Controller controller;
 
 
-    // Button to run our sample autonomous routine
-    ControllerButton runAutoButton(ControllerDigital::X);
+    // // Button to run our sample autonomous routine
+    // ControllerButton runAutoButton(ControllerDigital::X);
 
     while (true) {
         // Arcade drive with the left stick
-        drive->getModel()->arcade(controller.getAnalog(ControllerAnalog::leftY),
-                                  controller.getAnalog(ControllerAnalog::rightX));
+        // drive->getModel()->arcade(controller.getAnalog(ControllerAnalog::leftY),
+        //                           controller.getAnalog(ControllerAnalog::rightX));
+        
+        // if(runAutoButton.changedToPressed()){
+            if(auton_location == 0){
+                drive->moveDistance(-3_in);
+                drive->turnAngle(-90_deg);
+                drive->moveDistance(3_in);
+            }
+            else if(auton_location == 1){
+                drive->moveDistance(-3_in);
+                drive->turnAngle(90_deg);
+                drive->moveDistance(3_in);
+            }
+            else if(auton_location == 2){
+                drive->moveDistance(3_in);
+                drive->turnAngle(-90_deg);
+                drive->moveDistance(3_in);
+            }
+            else if(auton_location == 3){
+                drive->moveDistance(3_in);
+                drive->turnAngle(90_deg);
+                drive->moveDistance(3_in);
+            }
+            auton_location++;
+            
+        // }
+        
 
         // Run the test autonomous routine if we press the button
-        if (runAutoButton.changedToPressed()) {
+        // if (runAutoButton.changedToPressed()) {
             // Drive the robot in a square pattern using closed-loop control
             for (int i = 0; i < 4; i++) {
-                drive->moveDistance(12_in); // Drive forward 12 inches
+                drive->moveDistance(6_in); // Drive forward 12 inches
                 drive->turnAngle(90_deg);   // Turn in place 90 degrees
             }
-        }
+        // }
+        // auton_location 0,1,2,3
+
         // Wait and give up the time we don't need to other tasks.
         // Additionally, joystick values, motor telemetry, etc. all updates every 10 ms.
         pros::delay(10);
