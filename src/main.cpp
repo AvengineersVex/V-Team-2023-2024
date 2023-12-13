@@ -22,6 +22,14 @@ lv_style_t screenStyle;
 
 int auton_location = 0;
 
+
+std::shared_ptr<ChassisController> drive =
+        ChassisControllerBuilder()
+            .withMotors({1,2},{-3,-4})
+            // Green gearset, 4 in wheel diam, 11.5 in wheel track
+            .withDimensions(AbstractMotor::gearset::green, {{4_in, 14.5_in}, imev5GreenTPR})
+            .build();
+	
 static lv_res_t btn_click_action_red(lv_obj_t * btn)
 {
     uint8_t id = lv_obj_get_free_num(btn); //id usefull when there are multiple buttons
@@ -32,6 +40,8 @@ static lv_res_t btn_click_action_red(lv_obj_t * btn)
         sprintf(buffer, "clicked @ %ims from startup ee oo text to wrap over ooga bogoa", pros::millis());
         lv_label_set_text(myLabel, buffer);
     }
+
+    auton_location = id;
 
     // background red
     lv_style_copy(&screenStyle, &lv_style_plain);
@@ -53,6 +63,7 @@ static lv_res_t btn_click_action_blue(lv_obj_t * btn)
         lv_label_set_text(myLabel, buffer);
     }
 
+auton_location = id;
     // background blue
     lv_style_copy(&screenStyle, &lv_style_plain);
     screenStyle.body.main_color = LV_COLOR_MAKE(96, 95 , 94);
@@ -190,7 +201,29 @@ void competition_initialize() {}
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
-void autonomous() {}
+void autonomous() {
+    if(auton_location == 0){
+                drive->moveDistance(-3_in);
+                drive->turnAngle(-90_deg);
+                drive->moveDistance(3_in);
+            }
+            else if(auton_location == 1){
+                drive->moveDistance(-3_in);
+                drive->turnAngle(90_deg);
+                drive->moveDistance(3_in);
+            }
+            else if(auton_location == 2){
+                drive->moveDistance(3_in);
+                drive->turnAngle(-90_deg);
+                drive->moveDistance(3_in);
+            }
+            else if(auton_location == 3){
+                drive->moveDistance(3_in);
+                drive->turnAngle(90_deg);
+                drive->moveDistance(3_in);
+            }
+            
+}
 
 /**
  * Runs the operator control code. This function will be started in its own task
@@ -218,13 +251,7 @@ void opcontrol() {
 	// motorRightBack.setBrakeMode(AbstractMotor::brakeMode::brake);
 	// motorRight.setBrakeMode(AbstractMotor::brakeMode::brake);
 
-    std::shared_ptr<ChassisController> drive =
-        ChassisControllerBuilder()
-            .withMotors({1,2},{-3,-4})
-            // Green gearset, 4 in wheel diam, 11.5 in wheel track
-            .withDimensions(AbstractMotor::gearset::green, {{4_in, 14.5_in}, imev5GreenTPR})
-            .build();
-	
+    
 	drive->getModel()->setBrakeMode(AbstractMotor::brakeMode::brake);
 
     // Joystick to read analog values for tank or arcade control
@@ -236,32 +263,13 @@ void opcontrol() {
     // ControllerButton runAutoButton(ControllerDigital::X);
 
     while (true) {
+        Controller controller;
         // Arcade drive with the left stick
-        // drive->getModel()->arcade(controller.getAnalog(ControllerAnalog::leftY),
-        //                           controller.getAnalog(ControllerAnalog::rightX));
+        drive->getModel()->arcade(controller.getAnalog(ControllerAnalog::leftY),
+                                  controller.getAnalog(ControllerAnalog::rightX));
         
         // if(runAutoButton.changedToPressed()){
-            if(auton_location == 0){
-                drive->moveDistance(-3_in);
-                drive->turnAngle(-90_deg);
-                drive->moveDistance(3_in);
-            }
-            else if(auton_location == 1){
-                drive->moveDistance(-3_in);
-                drive->turnAngle(90_deg);
-                drive->moveDistance(3_in);
-            }
-            else if(auton_location == 2){
-                drive->moveDistance(3_in);
-                drive->turnAngle(-90_deg);
-                drive->moveDistance(3_in);
-            }
-            else if(auton_location == 3){
-                drive->moveDistance(3_in);
-                drive->turnAngle(90_deg);
-                drive->moveDistance(3_in);
-            }
-            auton_location++;
+            
             
         // }
         
@@ -269,10 +277,10 @@ void opcontrol() {
         // Run the test autonomous routine if we press the button
         // if (runAutoButton.changedToPressed()) {
             // Drive the robot in a square pattern using closed-loop control
-            for (int i = 0; i < 4; i++) {
-                drive->moveDistance(6_in); // Drive forward 12 inches
-                drive->turnAngle(90_deg);   // Turn in place 90 degrees
-            }
+            // for (int i = 0; i < 4; i++) {
+            //     drive->moveDistance(6_in); // Drive forward 12 inches
+            //     drive->turnAngle(90_deg);   // Turn in place 90 degrees
+            // }
         // }
         // auton_location 0,1,2,3
 
