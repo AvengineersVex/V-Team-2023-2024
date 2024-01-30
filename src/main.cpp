@@ -202,32 +202,30 @@ void autonomous() {
     std::shared_ptr<ChassisController> drive = ChassisControllerBuilder()
             .withMotors({1,2},{-3,-4})
             // Green gearset, 4 in wheel diam, 11.5 in wheel track
-            .withDimensions(AbstractMotor::gearset::green, {{4_in, 14.5_in}, imev5GreenTPR})
+            .withDimensions(AbstractMotor::gearset::green, {{4.1875_in, 10.575_in}, imev5GreenTPR})
             .build();
+
+    
     drive->getModel()->setBrakeMode(AbstractMotor::brakeMode::brake);
-    if(auton_location == 0){
-        drive->moveDistance(-3_in);
-        // drive->waitUntilSettled();
-        drive->turnAngle(-90_deg);
-        // drive->waitUntilSettled();
-        drive->moveDistance(3_in);
-        // drive->waitUntilSettled();
-    }
-    else if(auton_location == 1){
-        drive->moveDistance(-3_in);
-        drive->turnAngle(90_deg);
-        drive->moveDistance(3_in);
-    }
-    else if(auton_location == 2){
-        drive->moveDistance(3_in);
-        drive->turnAngle(-90_deg);
-        drive->moveDistance(3_in);
-    }
-    else if(auton_location == 3){
-        drive->moveDistance(3_in);
-        drive->turnAngle(90_deg);
-        drive->moveDistance(3_in);
-    }
+    // if(auton_location == 0){
+    //     drive->moveDistance(-3_in);
+    //     // drive->waitUntilSettled();
+    //     drive->turnAngle(-90_deg);
+    //     // drive->waitUntilSettled();
+    //     drive->moveDistance(3_in);
+    //     // drive->waitUntilSettled();
+    // }
+    drive->setMaxVelocity(200);
+
+    drive->moveDistance(6_in);
+    drive->turnAngle(45_deg);
+    drive->moveDistance(30_in);
+    drive->turnAngle(-45_deg);
+    drive->moveDistance(18_in);
+    // drive->turnAngle(-135_deg);
+    // drive->moveDistance(36_in);
+    // drive->turnAngle(45_deg);
+    
             
 }
 
@@ -267,7 +265,7 @@ void opcontrol() {
                                   controller.getAnalog(ControllerAnalog::rightX));
         
         if (launchButton.changedToPressed()) {
-            launchMotor.moveRelative(360, 100);
+            launchMotor.moveRelative(360, 50);
             checkStopped = 10;
         }
 
