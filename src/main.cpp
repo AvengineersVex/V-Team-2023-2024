@@ -221,7 +221,12 @@ void autonomous() {
     drive->turnAngle(45_deg);
     drive->moveDistance(30_in);
     drive->turnAngle(-45_deg);
-    drive->moveDistance(18_in);
+    drive->moveDistance(15_in);
+    drive->moveDistance(-15_in);
+    drive->turnAngle(45_deg);
+    drive->moveDistance(-34_in);
+    drive->turnAngle(45_deg);
+    drive->moveDistance(-36_in);
     // drive->turnAngle(-135_deg);
     // drive->moveDistance(36_in);
     // drive->turnAngle(45_deg);
