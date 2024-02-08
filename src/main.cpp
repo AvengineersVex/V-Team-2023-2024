@@ -1,71 +1,76 @@
 #include "main.h"
 
-// lv_obj_t * roller1;
 
-// lv_obj_t * redLeftButton;
-// lv_obj_t * redLeftButtonLabel;
-// lv_obj_t * redRightButton;
-// lv_obj_t * redRightButtonLabel;
-// lv_obj_t * blueLeftButton;
-// lv_obj_t * blueLeftButtonLabel;
-// lv_obj_t * blueRightButton;
-// lv_obj_t * blueRightButtonLabel;
-
-
-// lv_obj_t * myLabel;
-
-// lv_style_t redButtonStyleREL; //relesed style
-// lv_style_t redButtonStylePR; //pressed style
-// lv_style_t blueButtonStyleREL; //relesed style
-// lv_style_t blueButtonStylePR; //pressed style
-// lv_style_t screenStyle;
-
-int auton_location = 0;
+lv_obj_t * redLeftButton;
+lv_obj_t * redLeftButtonLabel;
+lv_obj_t * redRightButton;
+lv_obj_t * redRightButtonLabel;
+lv_obj_t * blueLeftButton;
+lv_obj_t * blueLeftButtonLabel;
+lv_obj_t * blueRightButton;
+lv_obj_t * blueRightButtonLabel;
 
 
-	
-// static lv_res_t btn_click_action_red(lv_obj_t * btn)
-// {
-//     uint8_t id = lv_obj_get_free_num(btn); //id usefull when there are multiple buttons
+lv_obj_t * selectionInfoLabel;
 
-//     if(id == 0)
-//     {
-//         char buffer[100];
-//         sprintf(buffer, "red clicked @ %ims", pros::millis());
-//         lv_label_set_text(myLabel, buffer);
-//     }
+lv_style_t redButtonStyleREL; //relesed style
+lv_style_t redButtonStylePR; //pressed style
+lv_style_t blueButtonStyleREL; //relesed style
+lv_style_t blueButtonStylePR; //pressed style
+lv_style_t screenStyle;
 
-//     auton_location = id;
+int auton_location = -1;
 
-//     // background red
-//     lv_style_copy(&screenStyle, &lv_style_plain);
-//     screenStyle.body.main_color = LV_COLOR_MAKE(96, 95 , 94);
-//     screenStyle.body.grad_color = LV_COLOR_MAKE(153, 13, 53);
-//     lv_obj_set_style(lv_scr_act(), &screenStyle);
+enum BUTTONS {
+    RED_LEFT = 0,
+    RED_RIGHT = 1,
+    BLUE_LEFT = 2,
+    BLUE_RIGHT = 3,
+};
 
-//     return LV_RES_OK;
-// }
 
-// static lv_res_t btn_click_action_blue(lv_obj_t * btn)
-// {
-//     uint8_t id = lv_obj_get_free_num(btn); //id usefull when there are multiple buttons
+static lv_res_t btn_click_action(lv_obj_t * btn)
+{
+    uint8_t id = lv_obj_get_free_num(btn); //id usefull when there are multiple buttons
 
-//     if(id == 0)
-//     {
-//         char buffer[100];
-//         sprintf(buffer, "blue clicked @ %ims", pros::millis());
-//         lv_label_set_text(myLabel, buffer);
-//     }
+    auton_location = -1;
+    char buffer[100];
+    if (id == BUTTONS::RED_LEFT) {
+        sprintf(buffer, "Red Left Selected @ %ims", pros::millis());
+        auton_location = BUTTONS::RED_LEFT;
+    } else if (id == BUTTONS::RED_RIGHT) {
+        sprintf(buffer, "Red Right Selected @ %ims", pros::millis());
+        auton_location = BUTTONS::RED_RIGHT;
+    } else if (id == BUTTONS::BLUE_LEFT) {
+        sprintf(buffer, "Blue Left Selected @ %ims", pros::millis());
+        auton_location = BUTTONS::BLUE_LEFT;
+    } else if (id == BUTTONS::BLUE_RIGHT) {
+        sprintf(buffer, "Blue Right Selected @ %ims", pros::millis());
+        auton_location = BUTTONS::BLUE_RIGHT;
+    } else {
+        sprintf(buffer, "No Selection @ %ims", pros::millis());
+    }
+    
+    lv_label_set_text(selectionInfoLabel, buffer);
 
-//     auton_location = id;
-//     // background blue
-//     lv_style_copy(&screenStyle, &lv_style_plain);
-//     screenStyle.body.main_color = LV_COLOR_MAKE(96, 95 , 94);
-//     screenStyle.body.grad_color = LV_COLOR_MAKE(39, 93, 173);
-//     lv_obj_set_style(lv_scr_act(), &screenStyle);
+    // background
+    if (id == BUTTONS::BLUE_LEFT || id == BUTTONS::BLUE_RIGHT) {
+        lv_style_copy(&screenStyle, &lv_style_plain);
+        screenStyle.body.main_color = LV_COLOR_MAKE(96, 95 , 94);
+        screenStyle.body.grad_color = LV_COLOR_MAKE(39, 93, 173);
+        //     screenStyle.body.grad_color = LV_COLOR_MAKE(153, 13, 53); // red
+        lv_obj_set_style(lv_scr_act(), &screenStyle);
+    } else if (id == BUTTONS::RED_LEFT || id == BUTTONS::RED_RIGHT) {
+        lv_style_copy(&screenStyle, &lv_style_plain);
+        screenStyle.body.main_color = LV_COLOR_MAKE(96, 95 , 94);
+        // screenStyle.body.grad_color = LV_COLOR_MAKE(39, 93, 173); // blue
+        screenStyle.body.grad_color = LV_COLOR_MAKE(153, 13, 53);
+        lv_obj_set_style(lv_scr_act(), &screenStyle);
+    }
+    
 
-//     return LV_RES_OK;
-// }
+    return LV_RES_OK;
+}
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -98,93 +103,93 @@ void disabled() {
  * starts.
  */
 void competition_initialize() {
-    // lv_style_copy(&redButtonStyleREL, &lv_style_plain);
-    // redButtonStyleREL.body.main_color = LV_COLOR_MAKE(219, 50, 77);
-    // redButtonStyleREL.body.grad_color = LV_COLOR_MAKE(219, 50, 77);
-    // redButtonStyleREL.body.radius = 0;
-    // redButtonStyleREL.text.color = LV_COLOR_MAKE(255, 255, 255);
+    lv_style_copy(&redButtonStyleREL, &lv_style_plain);
+    redButtonStyleREL.body.main_color = LV_COLOR_MAKE(219, 50, 77);
+    redButtonStyleREL.body.grad_color = LV_COLOR_MAKE(219, 50, 77);
+    redButtonStyleREL.body.radius = 0;
+    redButtonStyleREL.text.color = LV_COLOR_MAKE(255, 255, 255);
 
-    // lv_style_copy(&redButtonStylePR, &lv_style_plain);
-    // redButtonStylePR.body.main_color = LV_COLOR_MAKE(166, 38, 57);
-    // redButtonStylePR.body.grad_color = LV_COLOR_MAKE(219, 50, 77);
-    // redButtonStylePR.body.radius = 0;
-    // redButtonStylePR.text.color = LV_COLOR_MAKE(255, 255, 255);
+    lv_style_copy(&redButtonStylePR, &lv_style_plain);
+    redButtonStylePR.body.main_color = LV_COLOR_MAKE(166, 38, 57);
+    redButtonStylePR.body.grad_color = LV_COLOR_MAKE(219, 50, 77);
+    redButtonStylePR.body.radius = 0;
+    redButtonStylePR.text.color = LV_COLOR_MAKE(255, 255, 255);
 
-    // lv_style_copy(&blueButtonStyleREL, &lv_style_plain);
-    // blueButtonStyleREL.body.main_color = LV_COLOR_MAKE(40, 175, 176);
-    // blueButtonStyleREL.body.grad_color = LV_COLOR_MAKE(40, 175, 176);
-    // blueButtonStyleREL.body.radius = 0;
-    // blueButtonStyleREL.text.color = LV_COLOR_MAKE(255, 255, 255);
+    lv_style_copy(&blueButtonStyleREL, &lv_style_plain);
+    blueButtonStyleREL.body.main_color = LV_COLOR_MAKE(40, 175, 176);
+    blueButtonStyleREL.body.grad_color = LV_COLOR_MAKE(40, 175, 176);
+    blueButtonStyleREL.body.radius = 0;
+    blueButtonStyleREL.text.color = LV_COLOR_MAKE(255, 255, 255);
 
-    // lv_style_copy(&blueButtonStylePR, &lv_style_plain);
-    // blueButtonStylePR.body.main_color = LV_COLOR_MAKE(25, 100, 126);
-    // blueButtonStylePR.body.grad_color = LV_COLOR_MAKE(40, 175, 176);
-    // blueButtonStylePR.body.radius = 0;
-    // blueButtonStylePR.text.color = LV_COLOR_MAKE(255, 255, 255);
-
-
-    // // left red button
-    // redLeftButton = lv_btn_create(lv_scr_act(), NULL); //create button, lv_scr_act() is deafult screen object
-    // lv_obj_set_free_num(redLeftButton, 0); //set button is to 0
-    // lv_btn_set_action(redLeftButton, LV_BTN_ACTION_CLICK, btn_click_action_red); //set function to be called on button click
-    // lv_btn_set_style(redLeftButton, LV_BTN_STYLE_REL, &redButtonStyleREL); //set the relesed style
-    // lv_btn_set_style(redLeftButton, LV_BTN_STYLE_PR, &redButtonStylePR); //set the pressed style
-    // lv_obj_set_size(redLeftButton, 200, 50); //set the button size
-    // lv_obj_align(redLeftButton, NULL, LV_ALIGN_IN_BOTTOM_LEFT, 10, -10); //set the position to top mid
-
-    // redLeftButtonLabel = lv_label_create(redLeftButton, NULL); //create label and puts it inside of the button
-    // lv_label_set_text(redLeftButtonLabel, "Red left"); //sets label text
+    lv_style_copy(&blueButtonStylePR, &lv_style_plain);
+    blueButtonStylePR.body.main_color = LV_COLOR_MAKE(25, 100, 126);
+    blueButtonStylePR.body.grad_color = LV_COLOR_MAKE(40, 175, 176);
+    blueButtonStylePR.body.radius = 0;
+    blueButtonStylePR.text.color = LV_COLOR_MAKE(255, 255, 255);
 
 
-    // // red right button
+    // left red button
+    redLeftButton = lv_btn_create(lv_scr_act(), NULL); //create button, lv_scr_act() is deafult screen object
+    lv_obj_set_free_num(redLeftButton, BUTTONS::RED_LEFT); //set button is to 0
+    lv_btn_set_action(redLeftButton, LV_BTN_ACTION_CLICK, btn_click_action); //set function to be called on button click
+    lv_btn_set_style(redLeftButton, LV_BTN_STYLE_REL, &redButtonStyleREL); //set the relesed style
+    lv_btn_set_style(redLeftButton, LV_BTN_STYLE_PR, &redButtonStylePR); //set the pressed style
+    lv_obj_set_size(redLeftButton, 200, 50); //set the button size
+    lv_obj_align(redLeftButton, NULL, LV_ALIGN_IN_BOTTOM_LEFT, 10, -10); //set the position to top mid
 
-    // redRightButton = lv_btn_create(lv_scr_act(), NULL); //create button, lv_scr_act() is deafult screen object
-    // lv_obj_set_free_num(redRightButton, 1); //set button is to 0
-    // lv_btn_set_action(redRightButton, LV_BTN_ACTION_CLICK, btn_click_action_red); //set function to be called on button click
-    // lv_btn_set_style(redRightButton, LV_BTN_STYLE_REL, &redButtonStyleREL); //set the relesed style
-    // lv_btn_set_style(redRightButton, LV_BTN_STYLE_PR, &redButtonStylePR); //set the pressed style
-    // lv_obj_set_size(redRightButton, 200, 50); //set the button size
-    // lv_obj_align(redRightButton, NULL, LV_ALIGN_IN_BOTTOM_RIGHT, -10, -10); //set the position to top mid
-
-    // redRightButtonLabel = lv_label_create(redRightButton, NULL); //create label and puts it inside of the button
-    // lv_label_set_text(redRightButtonLabel, "Red right"); //sets label text
-
-    // // left blue button
-    // blueLeftButton = lv_btn_create(lv_scr_act(), NULL); //create button, lv_scr_act() is deafult screen object
-    // lv_obj_set_free_num(blueLeftButton, 2); //set button is to 0
-    // lv_btn_set_action(blueLeftButton, LV_BTN_ACTION_CLICK, btn_click_action_blue); //set function to be called on button click
-    // lv_btn_set_style(blueLeftButton, LV_BTN_STYLE_REL, &blueButtonStyleREL); //set the relesed style
-    // lv_btn_set_style(blueLeftButton, LV_BTN_STYLE_PR, &blueButtonStylePR); //set the pressed style
-    // lv_obj_set_size(blueLeftButton, 200, 50); //set the button size
-    // lv_obj_align(blueLeftButton, NULL, LV_ALIGN_IN_TOP_LEFT, 10, 10); //set the position to top mid
-
-    // blueLeftButtonLabel = lv_label_create(blueLeftButton, NULL); //create label and puts it inside of the button
-    // lv_label_set_text(blueLeftButtonLabel, "Blue left"); //sets label text
+    redLeftButtonLabel = lv_label_create(redLeftButton, NULL); //create label and puts it inside of the button
+    lv_label_set_text(redLeftButtonLabel, "Red left"); //sets label text
 
 
-    // // blue right button
+    // red right button
 
-    // blueRightButton = lv_btn_create(lv_scr_act(), NULL); //create button, lv_scr_act() is deafult screen object
-    // lv_obj_set_free_num(blueRightButton, 3); //set button is to 0
-    // lv_btn_set_action(blueRightButton, LV_BTN_ACTION_CLICK, btn_click_action_blue); //set function to be called on button click
-    // lv_btn_set_style(blueRightButton, LV_BTN_STYLE_REL, &blueButtonStyleREL); //set the relesed style
-    // lv_btn_set_style(blueRightButton, LV_BTN_STYLE_PR, &blueButtonStylePR); //set the pressed style
-    // lv_obj_set_size(blueRightButton, 200, 50); //set the button size
-    // lv_obj_align(blueRightButton, NULL, LV_ALIGN_IN_TOP_RIGHT, -10, 10); //set the position to top mid
+    redRightButton = lv_btn_create(lv_scr_act(), NULL); //create button, lv_scr_act() is deafult screen object
+    lv_obj_set_free_num(redRightButton, BUTTONS::RED_RIGHT); //set button is to 0
+    lv_btn_set_action(redRightButton, LV_BTN_ACTION_CLICK, btn_click_action); //set function to be called on button click
+    lv_btn_set_style(redRightButton, LV_BTN_STYLE_REL, &redButtonStyleREL); //set the relesed style
+    lv_btn_set_style(redRightButton, LV_BTN_STYLE_PR, &redButtonStylePR); //set the pressed style
+    lv_obj_set_size(redRightButton, 200, 50); //set the button size
+    lv_obj_align(redRightButton, NULL, LV_ALIGN_IN_BOTTOM_RIGHT, -10, -10); //set the position to top mid
 
-    // blueRightButtonLabel = lv_label_create(blueRightButton, NULL); //create label and puts it inside of the button
-    // lv_label_set_text(blueRightButtonLabel, "Blue right"); //sets label text
+    redRightButtonLabel = lv_label_create(redRightButton, NULL); //create label and puts it inside of the button
+    lv_label_set_text(redRightButtonLabel, "Red right"); //sets label text
+
+    // left blue button
+    blueLeftButton = lv_btn_create(lv_scr_act(), NULL); //create button, lv_scr_act() is deafult screen object
+    lv_obj_set_free_num(blueLeftButton, BUTTONS::BLUE_LEFT); //set button is to 0
+    lv_btn_set_action(blueLeftButton, LV_BTN_ACTION_CLICK, btn_click_action); //set function to be called on button click
+    lv_btn_set_style(blueLeftButton, LV_BTN_STYLE_REL, &blueButtonStyleREL); //set the relesed style
+    lv_btn_set_style(blueLeftButton, LV_BTN_STYLE_PR, &blueButtonStylePR); //set the pressed style
+    lv_obj_set_size(blueLeftButton, 200, 50); //set the button size
+    lv_obj_align(blueLeftButton, NULL, LV_ALIGN_IN_TOP_LEFT, 10, 10); //set the position to top mid
+
+    blueLeftButtonLabel = lv_label_create(blueLeftButton, NULL); //create label and puts it inside of the button
+    lv_label_set_text(blueLeftButtonLabel, "Blue left"); //sets label text
 
 
-    // myLabel = lv_label_create(lv_scr_act(), NULL); //create label and puts it on the screen
-    // lv_label_set_text(myLabel, "Buttons"); //sets label text
-    // lv_obj_align(myLabel, NULL, LV_ALIGN_IN_LEFT_MID, 10, 0); //set the position to center
+    // blue right button
 
-    // // background
-    // lv_style_copy(&screenStyle, &lv_style_plain);
-    // screenStyle.body.main_color = LV_COLOR_MAKE(96, 95 , 94);
-    // screenStyle.body.grad_color = LV_COLOR_MAKE(96, 95, 94);
-    // lv_obj_set_style(lv_scr_act(), &screenStyle);
+    blueRightButton = lv_btn_create(lv_scr_act(), NULL); //create button, lv_scr_act() is deafult screen object
+    lv_obj_set_free_num(blueRightButton, BUTTONS::BLUE_RIGHT); //set button is to 0
+    lv_btn_set_action(blueRightButton, LV_BTN_ACTION_CLICK, btn_click_action); //set function to be called on button click
+    lv_btn_set_style(blueRightButton, LV_BTN_STYLE_REL, &blueButtonStyleREL); //set the relesed style
+    lv_btn_set_style(blueRightButton, LV_BTN_STYLE_PR, &blueButtonStylePR); //set the pressed style
+    lv_obj_set_size(blueRightButton, 200, 50); //set the button size
+    lv_obj_align(blueRightButton, NULL, LV_ALIGN_IN_TOP_RIGHT, -10, 10); //set the position to top mid
+
+    blueRightButtonLabel = lv_label_create(blueRightButton, NULL); //create label and puts it inside of the button
+    lv_label_set_text(blueRightButtonLabel, "Blue right"); //sets label text
+
+
+    selectionInfoLabel = lv_label_create(lv_scr_act(), NULL); //create label and puts it on the screen
+    lv_label_set_text(selectionInfoLabel, "Buttons"); //sets label text
+    lv_obj_align(selectionInfoLabel, NULL, LV_ALIGN_IN_LEFT_MID, 10, 0); //set the position to center
+
+    // background
+    lv_style_copy(&screenStyle, &lv_style_plain);
+    screenStyle.body.main_color = LV_COLOR_MAKE(96, 95 , 94);
+    screenStyle.body.grad_color = LV_COLOR_MAKE(96, 95, 94);
+    lv_obj_set_style(lv_scr_act(), &screenStyle);
 }
 
 /**
@@ -204,6 +209,30 @@ void autonomous() {
             // Green gearset, 4 in wheel diam, 11.5 in wheel track
             .withDimensions(AbstractMotor::gearset::green, {{4.1875_in, 10.575_in}, imev5GreenTPR})
             .build();
+    
+    std::shared_ptr<AsyncMotionProfileController> profileController =
+    AsyncMotionProfileControllerBuilder()
+        .withLimits({
+        1.0, // Maximum linear velocity of the Chassis in m/s
+        2.0, // Maximum linear acceleration of the Chassis in m/s/s
+        10.0 // Maximum linear jerk of the Chassis in m/s/s/s
+        })
+        .withOutput(drive)
+        .buildMotionProfileController();
+
+    profileController->generatePath({
+        {0_ft, 0_ft, 0_deg},  // Profile starting position, this will normally be (0, 0, 0)
+        {43_in, 22_in, 0_deg}}, // The next point in the profile, 3 feet forward
+        "score_preload" // Profile name
+    );
+
+    profileController->generatePath({
+        {0_ft, 0_ft, 0_deg},  // Profile starting position, this will normally be (0, 0, 0)
+        {5_in, 0_in, 0_deg},
+        {5_in, 0_in, 270_deg},
+        {5_in, -20_in, 270_deg}}, // The next point in the profile, 3 feet forward
+        "touch_bar" // Profile name
+    );
 
     
     drive->getModel()->setBrakeMode(AbstractMotor::brakeMode::brake);
@@ -215,22 +244,28 @@ void autonomous() {
     //     drive->moveDistance(3_in);
     //     // drive->waitUntilSettled();
     // }
-    drive->setMaxVelocity(200);
+    // drive->setMaxVelocity(200);
 
-    drive->moveDistance(6_in);
-    drive->turnAngle(45_deg);
-    drive->moveDistance(30_in);
-    drive->turnAngle(-45_deg);
-    drive->moveDistance(15_in);
-    drive->moveDistance(-15_in);
-    drive->turnAngle(45_deg);
-    drive->moveDistance(-34_in);
-    drive->turnAngle(45_deg);
-    drive->moveDistance(-36_in);
+    // drive->moveDistance(6_in);
+    // drive->turnAngle(45_deg);
+    // drive->moveDistance(30_in);
+    // drive->turnAngle(-45_deg);
+    // drive->moveDistance(15_in);
+    // drive->moveDistance(-15_in);
+    // drive->turnAngle(45_deg);
+    // drive->moveDistance(-34_in);
+    // drive->turnAngle(45_deg);
+    // drive->moveDistance(-36_in);
     // drive->turnAngle(-135_deg);
     // drive->moveDistance(36_in);
     // drive->turnAngle(45_deg);
-    
+
+    profileController->setTarget("score_preload", false, false);
+    profileController->waitUntilSettled();
+    profileController->setTarget("score_preload", true, true);
+    profileController->waitUntilSettled();
+    // profileController->setTarget("touch_bar", false, false);
+    // profileController->waitUntilSettled();
             
 }
 
