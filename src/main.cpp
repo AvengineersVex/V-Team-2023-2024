@@ -225,14 +225,19 @@ void autonomous() {
         {43_in, 22_in, 0_deg}}, // The next point in the profile, 3 feet forward
         "score_preload" // Profile name
     );
+    // profileController->generatePath({
+    //     {0_ft, 0_ft, 0_deg},  // Profile starting position, this will normally be (0, 0, 0)
+    //     {3_in, 0_in, 0_deg}}, // The next point in the profile, 3 feet forward
+    //     "score_bar_1" // Profile name
+    // );
+    
 
-    profileController->generatePath({
-        {0_ft, 0_ft, 0_deg},  // Profile starting position, this will normally be (0, 0, 0)
-        {5_in, 0_in, 0_deg},
-        {5_in, 0_in, 270_deg},
-        {5_in, -20_in, 270_deg}}, // The next point in the profile, 3 feet forward
-        "touch_bar" // Profile name
-    );
+    // profileController->generatePath({
+    //     {0_ft, 0_ft, 0_deg},  // Profile starting position, this will normally be (0, 0, 0)
+    //     {0_in, 5_in, 0_deg}},
+    //     "touch_bar_forwardPartTwo" // Profile name
+    // );
+
 
     
     drive->getModel()->setBrakeMode(AbstractMotor::brakeMode::brake);
@@ -260,12 +265,20 @@ void autonomous() {
     // drive->moveDistance(36_in);
     // drive->turnAngle(45_deg);
 
-    profileController->setTarget("score_preload", false, false);
-    profileController->waitUntilSettled();
-    profileController->setTarget("score_preload", true, true);
-    profileController->waitUntilSettled();
-    // profileController->setTarget("touch_bar", false, false);
-    // profileController->waitUntilSettled();
+    if (auton_location == BUTTONS::RED_RIGHT || auton_location == BUTTONS::BLUE_RIGHT) {
+        profileController->setTarget("score_preload", false, false);
+        profileController->waitUntilSettled();
+        profileController->setTarget("score_preload", true, true);
+        profileController->waitUntilSettled();
+    } else if (auton_location == BUTTONS::RED_LEFT || auton_location == BUTTONS::BLUE_LEFT) {
+        profileController->setTarget("score_preload", false, true);
+        profileController->waitUntilSettled();
+        profileController->setTarget("score_preload", true, false);
+        profileController->waitUntilSettled();
+    }
+    
+    
+
             
 }
 
@@ -305,7 +318,7 @@ void opcontrol() {
                                   controller.getAnalog(ControllerAnalog::rightX));
         
         if (launchButton.changedToPressed()) {
-            launchMotor.moveRelative(360, 50);
+            launchMotor.moveRelative(360, 100);
             checkStopped = 10;
         }
 
