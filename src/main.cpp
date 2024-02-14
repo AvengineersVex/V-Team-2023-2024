@@ -222,9 +222,10 @@ void autonomous() {
 
     profileController->generatePath({
         {0_ft, 0_ft, 0_deg},  // Profile starting position, this will normally be (0, 0, 0)
-        {43_in, 22_in, 0_deg}}, // The next point in the profile, 3 feet forward
+        {35_in, 22_in, 0_deg}}, // The next point in the profile, 3 feet forward
         "score_preload" // Profile name
     );
+
     // profileController->generatePath({
     //     {0_ft, 0_ft, 0_deg},  // Profile starting position, this will normally be (0, 0, 0)
     //     {3_in, 0_in, 0_deg}}, // The next point in the profile, 3 feet forward
@@ -270,6 +271,9 @@ void autonomous() {
         profileController->waitUntilSettled();
         profileController->setTarget("score_preload", true, true);
         profileController->waitUntilSettled();
+        drive->moveDistance(2_in);
+        drive->turnAngle(90_deg);
+        drive->moveDistance(-34_in);
     } else if (auton_location == BUTTONS::RED_LEFT || auton_location == BUTTONS::BLUE_LEFT) {
         profileController->setTarget("score_preload", false, true);
         profileController->waitUntilSettled();
