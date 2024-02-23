@@ -205,7 +205,7 @@ void competition_initialize() {
  */
 void autonomous() {
     std::shared_ptr<ChassisController> drive = ChassisControllerBuilder()
-            .withMotors({1,2},{-3,-4})
+            .withMotors({11,12},{-18,-20})
             // Green gearset, 4 in wheel diam, 11.5 in wheel track
             .withDimensions(AbstractMotor::gearset::green, {{4.1875_in, 10.575_in}, imev5GreenTPR})
             .build();
@@ -301,18 +301,33 @@ void autonomous() {
  */
 void opcontrol() {
     std::shared_ptr<ChassisController> drive = ChassisControllerBuilder()
-            .withMotors({1,2},{-3,-4})
+            .withMotors({11,12},{-18,-20})
             // Green gearset, 4 in wheel diam, 11.5 in wheel track
             .withDimensions(AbstractMotor::gearset::green, {{4_in, 14.5_in}, imev5GreenTPR})
             .build();
     
     auto launchMotor = Motor(6, false, AbstractMotor::gearset::red, AbstractMotor::encoderUnits::degrees);
+    auto intakeMotor = Motor(10, false, AbstractMotor::gearset::green, AbstractMotor::encoderUnits::degrees);
+
+    auto wingsMotor = Motor(15, false, AbstractMotor::gearset::green, AbstractMotor::encoderUnits::degrees);
+
+    
+    
     launchMotor.setBrakeMode(AbstractMotor::brakeMode::coast);
     int checkStopped = -1;
+    bool isIntakeOn = false;
+    intakeMotor.moveVelocity(0);
 
 	drive->getModel()->setBrakeMode(AbstractMotor::brakeMode::brake);
+    ControllerButton wingsOpenButton(ControllerDigital::left);
+    ControllerButton wingsCloseButton(ControllerDigital::right);
 
     ControllerButton launchButton(ControllerDigital::X);
+    
+
+    ControllerButton intakeButton(ControllerDigital::R1);
+    ControllerButton outtakeButton(ControllerDigital::L1);
+    
     
     Controller controller;
 
@@ -321,20 +336,37 @@ void opcontrol() {
         drive->getModel()->arcade(controller.getAnalog(ControllerAnalog::leftY),
                                   controller.getAnalog(ControllerAnalog::rightX));
         
-        if (launchButton.changedToPressed()) {
-            launchMotor.moveRelative(360, 100);
-            checkStopped = 10;
-        }
+        // if (launchButton.changedToPressed()) {
+        //     launchMotor.moveRelative(360, 100);
+        //     checkStopped = 10;
+        // }
 
-        if (checkStopped > 0) {
-            checkStopped--;
-        }
-        if (checkStopped == 0) {
-            if (launchMotor.getActualVelocity()==0) {
-                launchMotor.moveVoltage(0);
-                checkStopped = -1;
+        if (intakeButton.changed() || outtakeButton.changed()) {
+            if (intakeButton.isPressed()) {
+                intakeMotor.moveVelocity(300);
+            } else if (outtakeButton.isPressed()) {
+                intakeMotor.moveVelocity(-300);
+            } else {
+                intakeMotor.moveVelocity(0);
             }
         }
+
+        
+        if (wingsOpenButton.changedToPressed()) {
+            wingsMotor.moveRelative(90, 100);
+        } else if (wingsCloseButton.changedToPressed()) {
+            wingsMotor.moveRelative(-90, 100);
+        }
+
+        // if (checkStopped > 0) {
+        //     checkStopped--;
+        // }
+        // if (checkStopped == 0) {
+        //     if (launchMotor.getActualVelocity()==0) {
+        //         launchMotor.moveVoltage(0);
+        //         checkStopped = -1;
+        //     }
+        // }
 
         pros::delay(10);
     }
