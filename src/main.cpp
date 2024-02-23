@@ -353,9 +353,9 @@ void opcontrol() {
 
         
         if (wingsOpenButton.changedToPressed()) {
-            wingsMotor.moveRelative(90, 100);
+            wingsMotor.moveRelative(150, 100);
         } else if (wingsCloseButton.changedToPressed()) {
-            wingsMotor.moveRelative(-90, 100);
+            wingsMotor.moveRelative(-150, 400);
         }
 
         // if (checkStopped > 0) {
